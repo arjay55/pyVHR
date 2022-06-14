@@ -114,6 +114,20 @@ class Pipeline():
             # SIG extraction with patches
             sig = sig_processing.extract_patches(videoFileName, 'squares', 'mean')
 
+        ## print SpO2
+        
+        from sklearn.preprocessing import MinMaxScaler
+        sigtemp = sig.reshape(-1,3)
+        # scaler = MinMaxScaler(feature_range = (-0.5,0.5))
+        scaler = MinMaxScaler(feature_range = (0,1))
+        blue = scaler.fit_transform(sigtemp[:,0].reshape(-1,1))
+        red = scaler.fit_transform(sigtemp[:,2].reshape(-1,1))
+        r = (red[30:-90].std()/red[30:-90].mean())/(blue[30:-90].std()/blue[30:-90].mean())
+        #spo2 = 97.61+0.42*r
+        spo2 = 115.31-20.85*r
+        
+        print("Sp02 is {}".format(spo2))
+            
         # -- sig windowing
         windowed_sig, timesES = sig_windowing(sig, 6, 1, fps)
 
